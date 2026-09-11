@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Quiz Leaderboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body style="background-image: none !important;">
+
+<p style="font-size:35px;align-items: center;font-weight: bold;">Answer Leaderboard</p>
+
+<button onclick="reset()">Reset Question</button>
+
+<table id="board";>
+<tr>
+<th >Pos</th>
+<th >Team</th>
+<th >Answer</th>
+<th>Gap</th>
+</tr>
+</table>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+const socket = io();
+
+socket.on("updateBoard",(data)=>{
+
+let table=document.getElementById("board");
+
+table.innerHTML=`
+<tr>
+<th>Pos</th>
+<th>Team</th>
+<th>Answer</th>
+<th>Gap</th>
+</tr>
+`;
+
+if(data.length===0) return;
+
+let first=data[0].time;
+
+data.forEach((team,i)=>{
+
+let gap=(team.time-first)/1000;
+
+let row=table.insertRow();
+
+row.insertCell(0).innerText=i+1;
+row.insertCell(1).innerText=team.team;
+row.insertCell(2).innerText=team.answer;
+row.insertCell(3).innerText=i===0?"Leader":"+"+gap.toFixed(3)+"s";
+
+});
+
+});
+
+function reset(){
+socket.emit("reset");
+}
+
+</script>
+
+</body>
+</html>

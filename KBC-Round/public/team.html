@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Team Answer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1 style="margin-bottom: 170px; margin-top: 30px;">Enquesta'26</h1>
+
+<input id="team" placeholder="Team Name" readonly>
+
+<input id="answer" placeholder="Answer">
+
+<button onclick="submitAnswer()">Submit</button>
+
+<p id="status"></p>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+const socket = io();
+const urlParams = new URLSearchParams(window.location.search);
+const team = urlParams.get("team");
+const teamInput = document.getElementById("team");
+const status = document.getElementById("status");
+
+if (!team) {
+    teamInput.value = "(no team in URL)";
+    status.innerText = "Add ?team=TeamName to URL (e.g. ?team=TeamA)";
+}
+else {
+    teamInput.value = team;
+    status.innerText = `Enter your answer`;
+}
+
+function submitAnswer(){
+    if (!team) {
+        status.innerText = "Cannot submit without team URL parameter.";
+        return;
+    }
+
+    const answer = document.getElementById("answer").value;
+    if (!answer) {
+        status.innerText = "Enter an answer first.";
+        return;
+    }
+
+    socket.emit("submitAnswer", { team, answer });
+    document.getElementById("answer").value = "";
+    status.innerText = "Submitted!";
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+@font-face {
+  font-family: 'Azonix';
+  src: url(../../fonts/Azonix.otf);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 20px 16px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-image: url('./LA.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  color: white;
+}
+
+h1 {
+  font-size: clamp(28px, 8vw, 52px);
+  margin: 0 0 48px 0;
+}
+
+input {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  padding: 14px 20px;
+  margin: 10px auto;
+  background-color: transparent;
+  border: 2px solid blue;
+  border-radius: 20px;
+  color: white;
+  text-align: center;
+  font-size: clamp(16px, 4vw, 22px);
+  font-weight: bold;
+  box-shadow: 0 0 1px 1px blue;
+}
+
+input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 8px 3px blue;
+}
+
+button {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  margin: 16px auto 0;
+  padding: 14px 22px;
+  background: transparent;
+  border: 2px solid blue;
+  color: white;
+  font-size: clamp(16px, 4vw, 22px);
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover, button:active {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px 5px blue;
+}
+
+#status {
+  margin-top: 20px;
+  font-size: clamp(14px, 3.5vw, 18px);
+  color: rgba(255,255,255,0.75);
+  min-height: 24px;
+}
+
+table {
+  margin: 30px auto;
+  border-collapse: collapse;
+  width: 90%;
+  max-width: 700px;
+}
+
+th {
+  border-left: 4px solid white;
+  border-right: 4px solid white;
+  border-top: none;
+  border-bottom: none;
+  font-size: clamp(16px, 3.5vw, 30px);
+  padding: 10px;
+}
+
+td {
+  border-left: 4px solid white;
+  border-right: 4px solid white;
+  border-top: none;
+  border-bottom: none;
+  font-size: clamp(14px, 3vw, 22px);
+  padding: 10px;
+}

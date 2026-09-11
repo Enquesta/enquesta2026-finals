@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Bid Round — Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0d1117;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 24px 16px 40px;
+    }
+
+    h1 {
+      font-size: clamp(18px, 5vw, 24px);
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── Connection badge ── */
+    .conn-badge {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #f85149;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .conn-badge.connected { background: #3fb950; }
+
+    /* ── Team cards ── */
+    .teams {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    @media (min-width: 520px) {
+      .teams { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    }
+
+    .team-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      padding: 18px 16px;
+    }
+
+    .team-name-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #30363d;
+      color: #fff;
+      font-size: clamp(14px, 4vw, 16px);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 4px 0 8px;
+      margin-bottom: 16px;
+      outline: none;
+    }
+    .team-name-input:focus { border-bottom-color: #7ec8e3; }
+
+    .pot-display {
+      font-size: clamp(36px, 10vw, 48px);
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 14px;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .pot-display.flash { color: #f9c74f; }
+
+    .pot-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .pot-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e0e0e0;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pot-btn:active { background: #21262d; }
+
+    .step-select {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      color: #e0e0e0;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      flex: 1;
+      max-width: 90px;
+      text-align: center;
+    }
+
+    .pot-direct {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .pot-direct input {
+      flex: 1;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      color: #e0e0e0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+      min-width: 0;
+    }
+    .pot-direct input:focus { border-color: #7ec8e3; }
+    .set-btn {
+      padding: 10px 16px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .set-btn:active { background: #30363d; }
+
+    /* ── Action buttons ── */
+    .action-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    @media (min-width: 400px) {
+      .action-row { flex-direction: row; flex-wrap: wrap; }
+    }
+
+    .action-btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 14px 20px;
+      font-size: clamp(14px, 4vw, 16px);
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.15s;
+    }
+    .action-btn:active { opacity: 0.75; }
+    .btn-push  { background: #238636; color: #fff; }
+    .btn-reset { background: #21262d; color: #e0e0e0; border: 1px solid #30363d; }
+
+    .status {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #666;
+      min-height: 20px;
+      text-align: center;
+    }
+    .status.ok  { color: #3fb950; }
+    .status.err { color: #f85149; }
+  </style>
+</head>
+<body>
+
+  <h1>Bid Round — Admin</h1>
+  <p class="subtitle">
+    <span class="conn-badge" id="conn-dot"></span>
+    <span id="conn-label">Connecting…</span>
+  </p>
+
+  <div class="teams" id="teams-container"></div>
+
+  <div class="action-row">
+    <button class="action-btn btn-push"  onclick="pushPots()">⬆ Push to display</button>
+    <button class="action-btn btn-reset" onclick="resetPots()">↺ Reset all to 200</button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+
+    var state = {
+      names: ['Team 1', 'Team 2', 'Team 3'],
+      pots:  [200, 200, 200]
+    };
+
+    socket.on('connect', function () {
+      document.getElementById('conn-dot').classList.add('connected');
+      document.getElementById('conn-label').textContent = 'Connected';
+      socket.emit('getPots');
+    });
+    socket.on('disconnect', function () {
+      document.getElementById('conn-dot').classList.remove('connected');
+      document.getElementById('conn-label').textContent = 'Disconnected';
+    });
+    socket.on('potUpdate', function (data) {
+      state.names = data.names;
+      state.pots  = data.pots;
+      renderTeams();
+      setStatus('Display updated ✓', 'ok');
+    });
+
+    function renderTeams() {
+      var container = document.getElementById('teams-container');
+      container.innerHTML = '';
+      state.names.forEach(function (name, i) {
+        var card = document.createElement('div');
+        card.className = 'team-card';
+        card.innerHTML =
+          '<input class="team-name-input" value="' + name + '" ' +
+            'onchange="updateName(' + i + ', this.value)" ' +
+            'placeholder="Team name" />' +
+          '<div class="pot-display" id="pot-val-' + i + '">' + state.pots[i] + '</div>' +
+          '<div class="pot-controls">' +
+            '<button class="pot-btn" onclick="adjustPot(' + i + ', -1)">−</button>' +
+            '<select class="step-select" id="step-' + i + '">' +
+              '<option value="10">± 10</option>' +
+              '<option value="20">± 20</option>' +
+              '<option value="50">± 50</option>' +
+              '<option value="100">± 100</option>' +
+            '</select>' +
+            '<button class="pot-btn" onclick="adjustPot(' + i + ', 1)">+</button>' +
+          '</div>' +
+          '<div class="pot-direct">' +
+            '<input type="number" id="direct-' + i + '" placeholder="Set exact…" min="0" step="10" inputmode="numeric" />' +
+            '<button class="set-btn" onpointerdown="setDirect(' + i + ')">Set</button>' +
+          '</div>';
+        container.appendChild(card);
+      });
+    }
+
+    function getStepFor(idx) {
+      var el = document.getElementById('step-' + idx);
+      return el ? parseInt(el.value) : 10;
+    }
+
+    function adjustPot(idx, dir) {
+      var step = getStepFor(idx);
+      state.pots[idx] = Math.max(0, state.pots[idx] + dir * step);
+      document.getElementById('pot-val-' + idx).textContent = state.pots[idx];
+      flashPot(idx);
+    }
+
+    function setDirect(idx) {
+      var input = document.getElementById('direct-' + idx);
+      var raw = input.value.trim();
+      if (raw === '') return;
+      var val = parseInt(raw);
+      if (isNaN(val) || val < 0) return;
+      val = Math.round(val / 10) * 10;
+      state.pots[idx] = val;
+      document.getElementById('pot-val-' + idx).textContent = val;
+      input.value = '';
+      input.blur();
+      flashPot(idx);
+    }
+
+    function updateName(idx, val) {
+      state.names[idx] = val.trim() || ('Team ' + (idx + 1));
+    }
+
+    function flashPot(idx) {
+      var el = document.getElementById('pot-val-' + idx);
+      if (!el) return;
+      el.classList.add('flash');
+      setTimeout(function () { el.classList.remove('flash'); }, 500);
+    }
+
+    function pushPots() {
+      socket.emit('setPots', { names: state.names, pots: state.pots, changed: undefined });
+      setStatus('Pushing…', '');
+    }
+
+    function resetPots() {
+      if (!confirm('Reset all pots to 200?')) return;
+      socket.emit('resetPots');
+    }
+
+    function setStatus(msg, type) {
+      var el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status ' + type;
+    }
+
+    renderTeams();
+  </script>
+</body>
+</html>
